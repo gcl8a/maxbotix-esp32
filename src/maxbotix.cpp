@@ -5,6 +5,8 @@
 
 #define MB_WINDOW_DUR 50    //ms
 
+MaxBotix mb_ez1;
+
 SPISettings spiSettings; //defaults to (1000000, MSBFIRST, SPI_MODE0), which is what we want
 
 uint8_t MaxBotix::CheckSonar(void)
@@ -105,6 +107,8 @@ void MaxBotix::Init(void)
 
 void MaxBotix::Init(uint8_t interfaces)
 {
+    config = interfaces;
+    
     if(interfaces & USE_ECHO)
     {
         // assert ECHO pin is an input
@@ -164,8 +168,8 @@ uint32_t MaxBotix::ReadASCII(void)
     char c = Serial2.read();
     
     //comment these out to suppress raw uart debugging
-    Serial.print(c, HEX);
-    Serial.print(' ');
+    // Serial.print(c, HEX);
+    // Serial.print(' ');
 
     if(c != 'R') serialString += c;
 

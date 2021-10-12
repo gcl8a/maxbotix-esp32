@@ -14,16 +14,18 @@ static uint32_t SAMPLE_INTERVAL = 250;  //ms
 #define ECHO_RECD   0x02
 #define UART_RECD   0x04
 #define ADC_READ    0x08
+#define CYCLE_END   0x10
 
-#define USE_ECHO    0x10
-#define USE_UART    0x20
-#define USE_ADC     0x40
-#define USE_CTRL_PIN    0x80
+#define USE_CTRL_PIN    0x01
+#define USE_ECHO        0x02
+#define USE_UART        0x04
+#define USE_ADC         0x08
 
 class MaxBotix 
 {
 private:
     uint8_t state = 0;
+    uint8_t config = 0;
 
     uint32_t lastPing = 0;                      //for keeping track of intervals
     uint32_t pingInterval = SAMPLE_INTERVAL;    //ms
