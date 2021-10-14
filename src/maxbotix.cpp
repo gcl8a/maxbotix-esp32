@@ -23,8 +23,11 @@ uint8_t MaxBotix::CheckSonar(void)
             pulseEnd = pulseStart = 0;
 
             lastPing = millis(); //not perfectly on schedule, but safer and close enough
-            digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
 
+            digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
+            delayMicroseconds(30); //datasheet says hold HIGH for >20us
+            digitalWrite(MB_CTRL, LOW); //unclear if pin has to stay HIGH
+            
             // Serial.print('\n');
             // Serial.print(lastPing);
             // Serial.print("\tping\t");
@@ -33,18 +36,26 @@ uint8_t MaxBotix::CheckSonar(void)
 
     else
     {
-        uint16_t rsDist = ReadASCII();
-        if(rsDist) 
+        if(config & USE_UART)
         {
-            rsDistance = rsDist;
-            state |= UART_RECD;
+            uint16_t rsDist = ReadASCII();
+            if(rsDist) 
+            {
+                rsDistance = rsDist;
+                state |= UART_RECD;
+            }
         }
 
         if(millis() - lastPing > MB_WINDOW_DUR) 
         {
-            adcValue = ReadMCP3002();
-            state |= ADC_READ;
+            state |= CYCLE_END;
             state &= ~PINGING;
+            
+            if(config & USE_ADC)
+            {
+                adcValue = ReadMCP3002();
+                state |= ADC_READ;
+            }
         }
     }
 
@@ -89,20 +100,7 @@ MaxBotix::MaxBotix(void) {}
 
 void MaxBotix::Init(void)
 {
-    //Serial2 is used for RS-232 format
-    Serial2.begin(9600);
-    Serial2.setRxInvert(true); // MaxBotix uses INVERTED logic levels
-
-    //SPI to talk to the MCP3002
-    SPI.begin(); //defaults to VPSI: SCK, MISO, MOSI, SS; see above
-    pinMode(SS, OUTPUT); //need to set the CS to OUTPUT
-
-    //control pin for commanding pings
-    pinMode(MB_CTRL, OUTPUT);
-
-    // assert ECHO pin is an input
-    pinMode(PULSE_PIN, INPUT);
-    attachInterrupt(PULSE_PIN, ISR_MaxBotix, CHANGE);
+    Init(USE_ADC | USE_UART | USE_ECHO | USE_CTRL_PIN);
 }
 
 void MaxBotix::Init(uint8_t interfaces)
@@ -192,7 +190,7 @@ void MaxBotix::MB_ISR(void)
         if(digitalRead(PULSE_PIN))  //transitioned to HIGH
         {
             pulseStart = micros();
-            digitalWrite(MB_CTRL, LOW); //stop pinging
+            //digitalWrite(MB_CTRL, LOW); //stop pinging
         }
 
         else                        //transitioned to LOW
