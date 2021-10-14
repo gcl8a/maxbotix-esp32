@@ -50,7 +50,7 @@ uint8_t MaxBotix::CheckSonar(void)
         {
             state |= CYCLE_END;
             state &= ~PINGING;
-            
+
             if(config & USE_ADC)
             {
                 adcValue = ReadMCP3002();
@@ -62,17 +62,30 @@ uint8_t MaxBotix::CheckSonar(void)
     return state;
 }
 
+uint16_t MaxBotix::CheckEcho(void)
+{
+    uint16_t echoLength = 0;
+    if(state & ECHO_RECD)
+    {
+        echoLength = pulseEnd - pulseStart;
+        state &= ~ECHO_RECD;
+    }
+
+    return echoLength;
+}
+
 uint8_t MaxBotix::Print(void)
 {
+    uint16_t echoLength = CheckEcho();
+    Serial.print(echoLength);
+    Serial.print('\t');
+    
     //EDIT THIS LINE: convert pulseLength to a distance
     float distancePulse = 0;
 
-    //and print it out
-    Serial.print(pulseEnd - pulseStart);
-    Serial.print('\t');
     Serial.print(distancePulse);
     Serial.print('\t');
-
+    
     //EDIT THESE LINES: convert the ADC reading to voltage and then voltage to distance
     float voltage = 0;
     float distanceADC = 0;
@@ -135,7 +148,7 @@ void MaxBotix::Init(uint8_t interfaces)
     }
 }
 
-uint32_t MaxBotix::ReadMCP3002(void)
+uint16_t MaxBotix::ReadMCP3002(void)
 {
   //this will command the MCP to take a reading on ADC1; the datasheet has details
   uint16_t cmdByte = 0x6800; 
@@ -159,7 +172,7 @@ uint32_t MaxBotix::ReadMCP3002(void)
   return ADCvalue;
 }
 
-uint32_t MaxBotix::ReadASCII(void)
+uint16_t MaxBotix::ReadASCII(void)
 {
   while(Serial2.available())
   {
@@ -173,7 +186,7 @@ uint32_t MaxBotix::ReadASCII(void)
 
     if(c == 0xD) 
     {
-      uint32_t result = serialString.toInt();
+      uint16_t result = serialString.toInt();
       serialString = "";
       return result;
     }
@@ -185,20 +198,14 @@ uint32_t MaxBotix::ReadASCII(void)
 //ISR for echo pin
 void MaxBotix::MB_ISR(void)
 {
-    if(state & PINGING)
+    if(digitalRead(PULSE_PIN))  //transitioned to HIGH
     {
-        if(digitalRead(PULSE_PIN))  //transitioned to HIGH
-        {
-            pulseStart = micros();
-            //digitalWrite(MB_CTRL, LOW); //stop pinging
-        }
-
-        else                        //transitioned to LOW
-        {
-            pulseEnd = micros();
-            state |= ECHO_RECD;
-        } 
+        pulseStart = micros();
     }
-    
-    else {} //really should handle the error
+
+    else                        //transitioned to LOW
+    {
+        pulseEnd = micros();
+        state |= ECHO_RECD;
+    } 
 }

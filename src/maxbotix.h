@@ -45,11 +45,13 @@ public:
     uint8_t CheckSonar(void);
     uint8_t Print(void);
 
+    uint16_t CheckEcho(void);
+
     //Reads the MCP3002 ADC; returns ADC result
-    uint32_t ReadMCP3002(void);
+    uint16_t ReadMCP3002(void);
 
     //Checks/reads on the RS-232 interface
-    uint32_t ReadASCII(void);
+    uint16_t ReadASCII(void);
 
     void MB_ISR(void);
 };
