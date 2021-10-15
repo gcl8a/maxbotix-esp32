@@ -7,55 +7,24 @@
 
 MaxBotix mb_ez1;
 
-SPISettings spiSettings; //defaults to (1000000, MSBFIRST, SPI_MODE0), which is what we want
-
 uint8_t MaxBotix::CheckSonar(void)
 {
-        //check if we're ready to take a reading
-        if(millis() - lastPing >= pingInterval)
-        {
-            // state = PINGING; //reset all the other flags
+    //check if we're ready to take a reading
+    if(millis() - lastPing >= pingInterval)
+    {
+        pulseEnd = pulseStart = 0;
+        state = 0;
 
-            // adcValue = 0;
-            // rsDistance = 0;
-            pulseEnd = pulseStart = 0;
-            state = 0;
-            
-            lastPing = millis(); //not perfectly on schedule, but safer and close enough
+        lastPing = millis(); //not perfectly on schedule, but safer and close enough
 
-            digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
-            delayMicroseconds(30); //datasheet says hold HIGH for >20us
-            digitalWrite(MB_CTRL, LOW); //unclear if pin has to stay HIGH
-            
-            // Serial.print('\n');
-            // Serial.print(lastPing);
-            // Serial.print("\tping\t");
-        }
-
-    // else
-    // {
-    //     if(config & USE_UART)
-    //     {
-    //         uint16_t rsDist = ReadASCII();
-    //         if(rsDist) 
-    //         {
-    //             rsDistance = rsDist;
-    //             state |= UART_RECD;
-    //         }
-    //     }
-
-    //     if(millis() - lastPing > MB_WINDOW_DUR) 
-    //     {
-    //         state |= CYCLE_END;
-    //         state &= ~PINGING;
-
-    //         if(config & USE_ADC)
-    //         {
-    //             adcValue = ReadMCP3002();
-    //             state |= ADC_READ;
-    //         }
-    //     }
-    // }
+        digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
+        delayMicroseconds(30); //datasheet says hold HIGH for >20us
+        digitalWrite(MB_CTRL, LOW); //unclear if pin has to stay HIGH
+        
+        // Serial.print('\n');
+        // Serial.print(lastPing);
+        // Serial.print("\tping\t");
+    }
 
     return state;
 }
@@ -72,36 +41,6 @@ uint16_t MaxBotix::CheckEcho(void)
     return echoLength;
 }
 
-// uint8_t MaxBotix::Print(void)
-// {
-//     uint16_t echoLength = CheckEcho();
-//     Serial.print(echoLength);
-//     Serial.print('\t');
-    
-//     //EDIT THIS LINE: convert pulseLength to a distance
-//     float distancePulse = 0;
-
-//     Serial.print(distancePulse);
-//     Serial.print('\t');
-    
-//     //EDIT THESE LINES: convert the ADC reading to voltage and then voltage to distance
-//     float voltage = 0;
-//     float distanceADC = 0;
-
-//     //and print them all out
-//     Serial.print(adcValue);
-//     Serial.print('\t');
-//     Serial.print(voltage);
-//     Serial.print('\t');
-//     Serial.print(distanceADC);
-//     Serial.print('\t');
-
-//     Serial.print(rsDistance);
-//     Serial.print('\n');
-
-//     return state = 0; //reset the state after we print
-// }
-
 void ISR_MaxBotix(void)
 {
     mb_ez1.MB_ISR();
@@ -116,8 +55,6 @@ void MaxBotix::Init(void)
 
 void MaxBotix::Init(uint8_t interfaces)
 {
-    config = interfaces;
-    
     if(interfaces & USE_ECHO)
     {
         // assert ECHO pin is an input
@@ -152,6 +89,7 @@ uint16_t MaxBotix::ReadMCP3002(void)
   uint16_t cmdByte = 0x6800; 
 
   //start the SPI session
+  SPISettings spiSettings; //defaults to (1000000, MSBFIRST, SPI_MODE0), which is what we want
   SPI.beginTransaction(spiSettings); 
   
   //open communication with the MCP3002
