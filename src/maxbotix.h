@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-static uint32_t SAMPLE_INTERVAL = 250;  //ms
+static uint32_t PING_INTERVAL = 250;  //ms
 
 #define ECHO_RECD   0x02
 #define UART_RECD   0x04
@@ -25,7 +25,7 @@ private:
     uint8_t state = 0;
 
     uint32_t lastPing = 0;                      //for keeping track of intervals
-    uint32_t pingInterval = SAMPLE_INTERVAL;    //ms
+    uint32_t pingInterval = PING_INTERVAL;    //ms
 
     uint32_t pulseStart = 0;
     uint32_t pulseEnd = 0;
