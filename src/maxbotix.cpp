@@ -7,12 +7,14 @@
 
 MaxBotix mb_ez1;
 
-uint8_t MaxBotix::CheckSonar(void)
+uint8_t MaxBotix::CheckPingTimer(void)
 {
-    //check if we're ready to take a reading
+    //check if we're ready to ping
     if(millis() - lastPing >= pingInterval)
     {
         pulseEnd = pulseStart = 0;
+
+        //clear out any leftover states
         state = 0;
 
         lastPing = millis(); //not perfectly on schedule, but safer and close enough

@@ -23,7 +23,6 @@ class MaxBotix
 {
 private:
     uint8_t state = 0;
-    //uint8_t config = 0;
 
     uint32_t lastPing = 0;                      //for keeping track of intervals
     uint32_t pingInterval = SAMPLE_INTERVAL;    //ms
@@ -37,9 +36,10 @@ public:
     void Init(void);
     void Init(uint8_t interfaces);
 
-    uint8_t CheckSonar(void);
-//    uint8_t Print(void);
+    //checks to see if it's time for a ping
+    uint8_t CheckPingTimer(void);
 
+    //Checks to see if a pulse echo has been registered
     uint16_t CheckEcho(void);
 
     //Reads the MCP3002 ADC; returns ADC result
