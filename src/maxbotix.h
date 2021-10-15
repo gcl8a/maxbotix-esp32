@@ -10,11 +10,11 @@
 
 static uint32_t SAMPLE_INTERVAL = 250;  //ms
 
-#define PINGING     0x01
+//#define PINGING     0x01
 #define ECHO_RECD   0x02
 #define UART_RECD   0x04
 #define ADC_READ    0x08
-#define CYCLE_END   0x10
+//#define CYCLE_END   0x10
 
 #define USE_CTRL_PIN    0x01
 #define USE_ECHO        0x02
@@ -33,8 +33,8 @@ private:
     uint32_t pulseStart = 0;
     uint32_t pulseEnd = 0;
 
-    uint16_t adcValue = 0;
-    uint16_t rsDistance = 0;
+//    uint16_t adcValue = 0;
+//    uint16_t rsDistance = 0;
 
     String serialString;
 public:
@@ -43,7 +43,7 @@ public:
     void Init(uint8_t interfaces);
 
     uint8_t CheckSonar(void);
-    uint8_t Print(void);
+//    uint8_t Print(void);
 
     uint16_t CheckEcho(void);
 

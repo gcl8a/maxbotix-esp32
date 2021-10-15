@@ -11,17 +11,16 @@ SPISettings spiSettings; //defaults to (1000000, MSBFIRST, SPI_MODE0), which is 
 
 uint8_t MaxBotix::CheckSonar(void)
 {
-    if(!(state & PINGING)) //
-    {
         //check if we're ready to take a reading
         if(millis() - lastPing >= pingInterval)
         {
-            state = PINGING; //reset all the other flags
+            // state = PINGING; //reset all the other flags
 
-            adcValue = 0;
-            rsDistance = 0;
+            // adcValue = 0;
+            // rsDistance = 0;
             pulseEnd = pulseStart = 0;
-
+            state = 0;
+            
             lastPing = millis(); //not perfectly on schedule, but safer and close enough
 
             digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
@@ -32,32 +31,31 @@ uint8_t MaxBotix::CheckSonar(void)
             // Serial.print(lastPing);
             // Serial.print("\tping\t");
         }
-    }
 
-    else
-    {
-        if(config & USE_UART)
-        {
-            uint16_t rsDist = ReadASCII();
-            if(rsDist) 
-            {
-                rsDistance = rsDist;
-                state |= UART_RECD;
-            }
-        }
+    // else
+    // {
+    //     if(config & USE_UART)
+    //     {
+    //         uint16_t rsDist = ReadASCII();
+    //         if(rsDist) 
+    //         {
+    //             rsDistance = rsDist;
+    //             state |= UART_RECD;
+    //         }
+    //     }
 
-        if(millis() - lastPing > MB_WINDOW_DUR) 
-        {
-            state |= CYCLE_END;
-            state &= ~PINGING;
+    //     if(millis() - lastPing > MB_WINDOW_DUR) 
+    //     {
+    //         state |= CYCLE_END;
+    //         state &= ~PINGING;
 
-            if(config & USE_ADC)
-            {
-                adcValue = ReadMCP3002();
-                state |= ADC_READ;
-            }
-        }
-    }
+    //         if(config & USE_ADC)
+    //         {
+    //             adcValue = ReadMCP3002();
+    //             state |= ADC_READ;
+    //         }
+    //     }
+    // }
 
     return state;
 }
@@ -74,35 +72,35 @@ uint16_t MaxBotix::CheckEcho(void)
     return echoLength;
 }
 
-uint8_t MaxBotix::Print(void)
-{
-    uint16_t echoLength = CheckEcho();
-    Serial.print(echoLength);
-    Serial.print('\t');
+// uint8_t MaxBotix::Print(void)
+// {
+//     uint16_t echoLength = CheckEcho();
+//     Serial.print(echoLength);
+//     Serial.print('\t');
     
-    //EDIT THIS LINE: convert pulseLength to a distance
-    float distancePulse = 0;
+//     //EDIT THIS LINE: convert pulseLength to a distance
+//     float distancePulse = 0;
 
-    Serial.print(distancePulse);
-    Serial.print('\t');
+//     Serial.print(distancePulse);
+//     Serial.print('\t');
     
-    //EDIT THESE LINES: convert the ADC reading to voltage and then voltage to distance
-    float voltage = 0;
-    float distanceADC = 0;
+//     //EDIT THESE LINES: convert the ADC reading to voltage and then voltage to distance
+//     float voltage = 0;
+//     float distanceADC = 0;
 
-    //and print them all out
-    Serial.print(adcValue);
-    Serial.print('\t');
-    Serial.print(voltage);
-    Serial.print('\t');
-    Serial.print(distanceADC);
-    Serial.print('\t');
+//     //and print them all out
+//     Serial.print(adcValue);
+//     Serial.print('\t');
+//     Serial.print(voltage);
+//     Serial.print('\t');
+//     Serial.print(distanceADC);
+//     Serial.print('\t');
 
-    Serial.print(rsDistance);
-    Serial.print('\n');
+//     Serial.print(rsDistance);
+//     Serial.print('\n');
 
-    return state = 0; //reset the state after we print
-}
+//     return state = 0; //reset the state after we print
+// }
 
 void ISR_MaxBotix(void)
 {
