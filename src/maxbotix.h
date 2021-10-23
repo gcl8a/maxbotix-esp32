@@ -52,8 +52,7 @@ public:
     /**
      * EXERCISE: Write a getDistance() function for the distance method of your choice.
      * 
-     * getDistance should return true whenever there is a new reading, and put the result
-     * in distance, which is _passed by reference_ so that you can "return" a value
+     * See the .cpp file.
      */
     bool getDistance(float& distance);
 

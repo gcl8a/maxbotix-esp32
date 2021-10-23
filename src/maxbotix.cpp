@@ -150,10 +150,11 @@ void MaxBotix::MB_ISR(void)
 }
 
 /**
- * EXERCISE: complete getDistance to check your favorite distance method.
- * When there's a new reading, set distance to the new value and return true.
- * Otherwise, return false.
- */ 
+ * EXERCISE: Write a getDistance() function for the distance method of your choice.
+ * 
+ * getDistance should return true whenever there is a new reading, and put the result
+ * in distance, which is _passed by reference_ so that you can "return" a value
+ */
 bool MaxBotix::getDistance(float& distance)
 {
     distance = -99;
