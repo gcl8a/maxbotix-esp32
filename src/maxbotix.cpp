@@ -5,56 +5,25 @@
 
 #define MB_WINDOW_DUR 50    //ms
 
+// Here is the mb_ez1 object that we declared as in extern in the .h file
 MaxBotix mb_ez1;
 
-uint8_t MaxBotix::checkPingTimer(void)
-{
-    //check if we're ready to ping
-    if(millis() - lastPing >= pingInterval)
-    {
-        pulseEnd = pulseStart = 0;
-
-        //clear out any leftover states
-        state = 0;
-
-        lastPing = millis(); //not perfectly on schedule, but safer and close enough
-
-        digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
-        delayMicroseconds(30); //datasheet says hold HIGH for >20us
-        digitalWrite(MB_CTRL, LOW); //unclear if pin has to stay HIGH
-        
-        // Serial.print('\n');
-        // Serial.print(lastPing);
-        // Serial.print("\tping\t");
-    }
-
-    return state;
-}
-
-uint16_t MaxBotix::checkEcho(void)
-{
-    uint16_t echoLength = 0;
-    if(state & ECHO_RECD)
-    {
-        echoLength = pulseEnd - pulseStart;
-        state &= ~ECHO_RECD;
-    }
-
-    return echoLength;
-}
-
+//ISR for reading the echoes. Or is it echos?
 void ISR_MaxBotix(void)
 {
     mb_ez1.MB_ISR();
 }
 
+// Constructor. Nothing to see here. Move along.
 MaxBotix::MaxBotix(void) {}
 
+// Default init engages all interfaces
 void MaxBotix::init(void)
 {
     init(USE_ADC | USE_UART | USE_ECHO | USE_CTRL_PIN);
 }
 
+// Allows the user to select the interface
 void MaxBotix::init(uint8_t interfaces)
 {
     if(interfaces & USE_ECHO)
@@ -83,6 +52,42 @@ void MaxBotix::init(uint8_t interfaces)
         //control pin for commanding pings
         pinMode(MB_CTRL, OUTPUT);
     }
+}
+
+/**
+ * checkPingTimer check to see if it's time to send a new ping.
+ * You must select USE_CTRL_PIN in init() for this to work.
+ */
+uint8_t MaxBotix::checkPingTimer(void)
+{
+    //check if we're ready to ping
+    if(millis() - lastPing >= pingInterval)
+    {
+        pulseEnd = pulseStart = 0;
+
+        //clear out any leftover states
+        state = 0;
+
+        lastPing = millis(); //not perfectly on schedule, but safer and close enough
+
+        digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
+        delayMicroseconds(30); //datasheet says hold HIGH for >20us; we'll use 30 to be 'safe'
+        digitalWrite(MB_CTRL, LOW); //unclear if pin has to stay HIGH
+    }
+
+    return state;
+}
+
+uint16_t MaxBotix::checkEcho(void)
+{
+    uint16_t echoLength = 0;
+    if(state & ECHO_RECD)
+    {
+        echoLength = pulseEnd - pulseStart;
+        state &= ~ECHO_RECD;
+    }
+
+    return echoLength;
 }
 
 uint16_t MaxBotix::readMCP3002(void)
@@ -115,10 +120,6 @@ uint16_t MaxBotix::readASCII(void)
   while(Serial2.available())
   {
     char c = Serial2.read();
-    
-    //comment these out to suppress raw uart debugging
-    // Serial.print(c, HEX);
-    // Serial.print(' ');
 
     if(c != 'R') serialString += c;
 
@@ -146,4 +147,15 @@ void MaxBotix::MB_ISR(void)
         pulseEnd = micros();
         state |= ECHO_RECD;
     } 
+}
+
+/**
+ * EXERCISE: complete getDistance to check your favorite distance method.
+ * When there's a new reading, set distance to the new value and return true.
+ * Otherwise, return false.
+ */ 
+bool MaxBotix::getDistance(float& distance)
+{
+    distance = -99;
+    return false;
 }
