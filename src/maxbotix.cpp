@@ -1,7 +1,7 @@
 #include "maxbotix.h"
 
-#define MB_CTRL 2    //for pinging -- not a great choice since this can hamper uploading
-#define PULSE_PIN 35 //for reading pulse
+#define MB_CTRL 2       //for pinging -- not a great choice since this can hamper uploading
+#define PULSE_PIN 35    //for reading pulse
 
 #define MB_WINDOW_DUR 50    //ms
 
