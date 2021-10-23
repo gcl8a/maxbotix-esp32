@@ -7,7 +7,7 @@
 
 MaxBotix mb_ez1;
 
-uint8_t MaxBotix::CheckPingTimer(void)
+uint8_t MaxBotix::checkPingTimer(void)
 {
     //check if we're ready to ping
     if(millis() - lastPing >= pingInterval)
@@ -31,7 +31,7 @@ uint8_t MaxBotix::CheckPingTimer(void)
     return state;
 }
 
-uint16_t MaxBotix::CheckEcho(void)
+uint16_t MaxBotix::checkEcho(void)
 {
     uint16_t echoLength = 0;
     if(state & ECHO_RECD)
@@ -50,12 +50,12 @@ void ISR_MaxBotix(void)
 
 MaxBotix::MaxBotix(void) {}
 
-void MaxBotix::Init(void)
+void MaxBotix::init(void)
 {
-    Init(USE_ADC | USE_UART | USE_ECHO | USE_CTRL_PIN);
+    init(USE_ADC | USE_UART | USE_ECHO | USE_CTRL_PIN);
 }
 
-void MaxBotix::Init(uint8_t interfaces)
+void MaxBotix::init(uint8_t interfaces)
 {
     if(interfaces & USE_ECHO)
     {
@@ -85,7 +85,7 @@ void MaxBotix::Init(uint8_t interfaces)
     }
 }
 
-uint16_t MaxBotix::ReadMCP3002(void)
+uint16_t MaxBotix::readMCP3002(void)
 {
   //this will command the MCP to take a reading on ADC1; the datasheet has details
   uint16_t cmdByte = 0x6800; 
@@ -110,7 +110,7 @@ uint16_t MaxBotix::ReadMCP3002(void)
   return ADCvalue;
 }
 
-uint16_t MaxBotix::ReadASCII(void)
+uint16_t MaxBotix::readASCII(void)
 {
   while(Serial2.available())
   {

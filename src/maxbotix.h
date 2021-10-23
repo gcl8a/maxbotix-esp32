@@ -34,20 +34,20 @@ private:
     String serialString;
 public:
     MaxBotix(void);  //ideally, this would take pins as parameters, but just hard-coded for now since we only have one
-    void Init(void);
-    void Init(uint8_t interfaces);
+    void init(void);
+    void init(uint8_t interfaces);
 
     //checks to see if it's time for a ping
-    uint8_t CheckPingTimer(void);
+    uint8_t checkPingTimer(void);
 
     //Checks to see if a pulse echo has been registered
-    uint16_t CheckEcho(void);
+    uint16_t checkEcho(void);
 
     //Reads the MCP3002 ADC; returns ADC result
-    uint16_t ReadMCP3002(void);
+    uint16_t readMCP3002(void);
 
     //Checks/reads on the RS-232 interface
-    uint16_t ReadASCII(void);
+    uint16_t readASCII(void);
 
     void MB_ISR(void);
 };
