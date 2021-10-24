@@ -57,6 +57,7 @@ void MaxBotix::init(uint8_t interfaces)
 /**
  * checkPingTimer check to see if it's time to send a new ping.
  * You must select USE_CTRL_PIN in init() for this to work.
+ * You should *only* call this if you're using the USE_CTRL_PIN option.
  */
 uint8_t MaxBotix::checkPingTimer(void)
 {
@@ -68,7 +69,8 @@ uint8_t MaxBotix::checkPingTimer(void)
         //clear out any leftover states
         state = 0;
 
-        lastPing = millis(); //not perfectly on schedule, but safer and close enough
+        lastPing = millis();    //not perfectly on schedule, but safer and close enough
+        lastADCread = lastPing; //this will make sure the proper interval is past before we read the ADC
 
         digitalWrite(MB_CTRL, HIGH); //commands a ping; leave high for the duration
         delayMicroseconds(30); //datasheet says hold HIGH for >20us; we'll use 30 to be 'safe'
@@ -92,28 +94,36 @@ uint16_t MaxBotix::checkEcho(void)
 
 uint16_t MaxBotix::readMCP3002(void)
 {
-  // This will command the MCP to take a reading on CH0
-  // Figure 6.1 of the datasheet shows the bit arrangement
-  uint16_t cmdByte = 0x6800; 
+    uint16_t retVal = 0;
+    if(millis() - lastADCread >= 50)
+    {
+        lastADCread = millis();
 
-  //start the SPI session
-  SPISettings spiSettings; //defaults to (clk freq = 1000000, MSBFIRST, SPI_MODE0), which is what we want
-  SPI.beginTransaction(spiSettings); 
-  
-  //open communication with the MCP3002
-  digitalWrite(SS, LOW); 
+        // This will command the MCP to take a reading on CH0
+        // Figure 6.1 of the datasheet shows the bit arrangement
+        uint16_t cmdByte = 0x6800; 
 
-  //this line both sends the command to read AND retrieves the result
-  //the leading bits are indeterminate and need to be stripped off
-  uint16_t ADCvalue = SPI.transfer16(cmdByte) & 0x03ff;
-  
-  //end communication
-  digitalWrite(SS, HIGH); 
-  
-  //close the SPI session
-  SPI.endTransaction(); 
+        //start the SPI session
+        SPISettings spiSettings; //defaults to (clk freq = 1000000, MSBFIRST, SPI_MODE0), which is what we want
+        SPI.beginTransaction(spiSettings); 
 
-  return ADCvalue;
+        //open communication with the MCP3002
+        digitalWrite(SS, LOW); 
+
+        //this line both sends the command to read AND retrieves the result
+        //the leading bits are indeterminate and need to be stripped off
+        uint16_t ADCvalue = SPI.transfer16(cmdByte) & 0x03ff;
+
+        //end communication
+        digitalWrite(SS, HIGH); 
+
+        //close the SPI session
+        SPI.endTransaction(); 
+
+        retVal = ADCvalue;
+    }
+
+    return retVal;
 }
 
 uint16_t MaxBotix::readASCII(void)
