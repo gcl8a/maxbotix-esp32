@@ -43,7 +43,7 @@ public:
     uint16_t checkEcho(void);
 
     //Reads the MCP3002 ADC; returns ADC result
-    uint16_t readMCP3002(void);
+    uint16_t readMCP3002(bool force = false);
 
     //Checks/reads on the RS-232 interface
     uint16_t readASCII(void);

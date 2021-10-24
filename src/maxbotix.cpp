@@ -91,10 +91,10 @@ uint16_t MaxBotix::checkEcho(void)
     return echoLength;
 }
 
-uint16_t MaxBotix::readMCP3002(void)
+uint16_t MaxBotix::readMCP3002(bool force)
 {
     uint16_t retVal = 0;
-    if(millis() - lastADCread >= 50)
+    if((millis() - lastADCread >= 50) || force)
     {
         lastADCread = millis();
 
