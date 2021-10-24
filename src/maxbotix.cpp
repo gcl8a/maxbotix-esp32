@@ -57,7 +57,6 @@ void MaxBotix::init(uint8_t interfaces)
 /**
  * checkPingTimer check to see if it's time to send a new ping.
  * You must select USE_CTRL_PIN in init() for this to work.
- * You should *only* call this if you're using the USE_CTRL_PIN option.
  */
 uint8_t MaxBotix::checkPingTimer(void)
 {
